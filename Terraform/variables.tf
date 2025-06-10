@@ -41,9 +41,9 @@ variable "private_subnet_cidrs" {
 }
 
 variable "admin_cidr" {
-  description = "CIDR block for admin access"
+  description = "CIDR block for admin access (Note: 0.0.0.0/0 is for testing only)"
   type        = string
-  default     = "10.0.0.0/8"  # Adjust this to your admin network
+  default     = "0.0.0.0/0"
 }
 
 # EC2 Configuration
@@ -57,24 +57,6 @@ variable "backend_instance_type" {
   description = "Instance type for backend servers"
   type        = string
   default     = "t3.large"
-}
-
-variable "frontend_instance_count" {
-  description = "Number of frontend instances"
-  type        = number
-  default     = 2
-}
-
-variable "backend_instance_count" {
-  description = "Number of backend instances"
-  type        = number
-  default     = 2
-}
-
-variable "key_pair_name" {
-  description = "Name of the AWS key pair for EC2 instances"
-  type        = string
-  default     = "webapp-keypair"
 }
 
 # RDS Configuration
@@ -115,4 +97,13 @@ variable "db_name" {
 }
 
 variable "db_username" {
-  description =
+  description = "Username for the database"
+  type        = string
+  default     = "admin"
+}
+
+variable "db_password" {
+  description = "Password for the database"
+  type        = string
+  sensitive   = true
+}

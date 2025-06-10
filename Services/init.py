@@ -6,15 +6,15 @@ Contains modules for calculating costs of various AWS services from Terraform co
 from . import ec2
 from . import rds
 from . import vpc
-from . import nat_gateway
+from . import nat as nat_gateway
 from . import eip
-from . import security_groups
+from . import sg as security_groups
 
 __all__ = [
     'ec2',
     'rds', 
     'vpc',
-    'nat_gateway',
+    'nat_gateway
     'eip',
     'security_groups'
 ]
