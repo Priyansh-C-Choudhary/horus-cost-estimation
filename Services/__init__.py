@@ -14,7 +14,7 @@ __all__ = [
     'ec2',
     'rds', 
     'vpc',
-    'nat_gateway
+    'nat_gateway',  # <-- Corrected this line
     'eip',
     'security_groups'
 ]
