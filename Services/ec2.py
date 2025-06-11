@@ -84,10 +84,8 @@ def process_ec2(region: str, resources: List[Dict[str, Any]]) -> Dict[str, Any]:
 
                 instance_price_hr = fetcher.get_instance_price(itype, os) if itype else 0.0
                 
-                # Handle EBS volume cost (assuming root volume)
-                # This is a simplification; a full implementation would parse ebs_block_device etc.
                 root_volume_type = cfg.get('root_block_device', [{}])[0].get('volume_type', 'gp3')
-                root_volume_size = cfg.get('root_block_device', [{}])[0].get('volume_size', 8) # Default to 8GB
+                root_volume_size = cfg.get('root_block_device', [{}])[0].get('volume_size', 8)
                 
                 ebs_price_gb_mo = fetcher.get_ebs_price(root_volume_type) or 0.0
                 ebs_monthly_cost = ebs_price_gb_mo * root_volume_size

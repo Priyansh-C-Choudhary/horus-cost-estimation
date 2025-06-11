@@ -24,14 +24,12 @@ def process_security_group(region: str, resources: List[Dict[str, Any]]) -> Dict
                 vpc_id = cfg.get('vpc_id', 'N/A')
                 description = cfg.get('description', 'No description')
                 
-                # Count ingress and egress rules
                 ingress_rules = cfg.get('ingress', [])
                 egress_rules = cfg.get('egress', [])
                 
                 ingress_count = len(ingress_rules) if isinstance(ingress_rules, list) else 0
                 egress_count = len(egress_rules) if isinstance(egress_rules, list) else 0
                 
-                # Analyze rule complexity
                 total_rules = ingress_count + egress_count
                 
                 details.append({
@@ -42,7 +40,7 @@ def process_security_group(region: str, resources: List[Dict[str, Any]]) -> Dict
                     'ingress_rules': ingress_count,
                     'egress_rules': egress_count,
                     'total_rules': total_rules,
-                    'price_per_hour': 0.0,  # Security Groups are free
+                    'price_per_hour': 0.0,
                     'monthly': 0.0
                 })
     

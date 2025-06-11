@@ -32,7 +32,6 @@ class NATGatewayPriceFetcher:
             ]
             response = self.pricing_client.get_products(ServiceCode='AmazonVPC', Filters=filters)
             if not response['PriceList']:
-                # Fallback for some regions not using the prefix
                 filters[2]['Value'] = usage_type
                 response = self.pricing_client.get_products(ServiceCode='AmazonVPC', Filters=filters)
                 if not response['PriceList']: return None
@@ -48,10 +47,10 @@ class NATGatewayPriceFetcher:
             return None
     
     def get_nat_gateway_hourly_price(self) -> float:
-        return self._get_price('NatGateway-Hours') or 0.045 # Fallback default
+        return self._get_price('NatGateway-Hours') or 0.045
 
     def get_data_processing_price_per_gb(self) -> float:
-        return self._get_price('NatGateway-Bytes') or 0.045 # Fallback default
+        return self._get_price('NatGateway-Bytes') or 0.045
 
 def process_nat_gateway(region: str, resources: List[Dict[str, Any]], estimated_gb_per_month: int = 100) -> Dict[str, Any]:
     fetcher = NATGatewayPriceFetcher(region)

@@ -25,7 +25,7 @@ class EIPPriceFetcher:
                 {'Type': 'TERM_MATCH', 'Field': 'usagetype', 'Value': f"{self.region}-ElasticIP:IdleAddress"}
             ]
             response = self.pricing_client.get_products(ServiceCode='AmazonVPC', Filters=filters)
-            if not response['PriceList']: return 0.005 # Fallback default
+            if not response['PriceList']: return 0.005
 
             price_item = json.loads(response['PriceList'][0])
             terms = price_item['terms']['OnDemand']
@@ -44,7 +44,11 @@ def process_eip(region: str, resources: List[Dict[str, Any]]) -> Dict[str, Any]:
     for res in resources:
         if 'aws_eip' in res:
             for name, cfg in res['aws_eip'].items():
-                is_attached = bool(cfg.get('instance') or cfg.get('network_interface') or cfg.get('association_id'))
+                is_for_nat_gateway = 'nat' in name.lower() or 'nat_gateway' in str(cfg.get('depends_on', ''))
+                is_attached = bool(cfg.get('instance') 
+                   or cfg.get('network_interface') 
+                   or cfg.get('association_id') 
+                   or is_for_nat_gateway)
                 
                 hourly_price = 0.0 if is_attached else fetcher.get_unattached_eip_hourly_price()
                 monthly_cost = hourly_price * 730

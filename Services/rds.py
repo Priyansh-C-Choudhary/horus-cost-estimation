@@ -46,7 +46,6 @@ class RDSPriceFetcher:
             return None
             
     def get_rds_storage_price(self, storage_type: str, deployment_option: str) -> Optional[float]:
-        # Price is per GB-month
         cache_key = f"rds-storage-{storage_type}-{deployment_option}"
         if cache_key in self._price_cache:
             return self._price_cache[cache_key]

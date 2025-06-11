@@ -6,9 +6,6 @@ import boto3
 import json
 from typing import List, Dict, Any, Optional
 
-# ... (keep all the existing process_vpc, process_subnet, etc. functions as they are) ...
-# ... (They correctly identify free resources, no changes needed there)
-
 def process_vpc(region: str, resources: List[Dict[str, Any]]) -> Dict[str, Any]:
     """ Process VPC resources - VPCs are free in AWS """
     details = []
@@ -71,17 +68,14 @@ def process_network_acl(region: str, resources: List[Dict[str, Any]]) -> Dict[st
     return {'type': 'NACL', 'total_hourly': 0.0, 'total_monthly': 0.0, 'instances': details}
 
 
-# --- VPC Endpoint processing (Now with API pricing) ---
-
 def get_vpc_endpoint_price(region: str, endpoint_type: str = 'Gateway') -> float:
     """ Get VPC Endpoint pricing (Interface endpoints have costs, Gateway endpoints are free) """
     if endpoint_type.lower() == 'gateway':
         return 0.0
 
-    # Interface endpoints have a cost
     try:
         pricing_client = boto3.client('pricing', region_name='us-east-1')
-        region_mapping = {'us-west-2': 'US West (Oregon)', 'us-east-1': 'US East (N. Virginia)'} # Add more as needed
+        region_mapping = {'us-west-2': 'US West (Oregon)', 'us-east-1': 'US East (N. Virginia)'}
         location = region_mapping.get(region, region)
 
         filters = [
@@ -90,7 +84,7 @@ def get_vpc_endpoint_price(region: str, endpoint_type: str = 'Gateway') -> float
             {'Type': 'TERM_MATCH', 'Field': 'usagetype', 'Value': f"{region}-InterfaceEndpoint-Hours"}
         ]
         response = pricing_client.get_products(ServiceCode='AmazonVPC', Filters=filters)
-        if not response['PriceList']: return 0.01 # Fallback default
+        if not response['PriceList']: return 0.01
         
         price_item = json.loads(response['PriceList'][0])
         terms = price_item['terms']['OnDemand']
@@ -98,7 +92,7 @@ def get_vpc_endpoint_price(region: str, endpoint_type: str = 'Gateway') -> float
         return float(list(price_dimensions.values())[0]['pricePerUnit']['USD'])
     except Exception as e:
         print(f"Error fetching VPC Endpoint price: {e}")
-        return 0.01 # Fallback default
+        return 0.01
 
 def process_vpc_endpoint(region: str, resources: List[Dict[str, Any]]) -> Dict[str, Any]:
     """ Process VPC Endpoint resources """

@@ -5,7 +5,6 @@ from typing import Dict, List, Any
 from parser import parse_terraform_directory
 from Services import ec2, rds, vpc, eip, nat, security_groups
 
-# Note: Renamed nat_gateway to nat to match the module filename
 SERVICE_MAP = {
     'aws_instance': ec2.process_ec2,
     'aws_db_instance': rds.process_rds,
@@ -68,28 +67,17 @@ def print_cost_summary(results: List[Dict[str, Any]]):
     print("and other services are not included. Verify with AWS Cost Explorer.")
 
 def process_terraform_directory(directory_path: str, nat_gb_estimate: int) -> None:
-    print(f"Analyzing Terraform files in: {directory_path}")
-    print("-" * 50)
-    
     region, all_resources, parsed_files = parse_terraform_directory(directory_path)
     
     if not region:
-        print("\nError: No AWS region found. Ensure provider config includes a region.")
         sys.exit(1)
     if not all_resources:
-        print("\nError: No resources found in Terraform files.")
         sys.exit(1)
-    
-    print(f"Parsed files: {', '.join(parsed_files)}")
-    print(f"Detected AWS Region: {region}")
-    print(f"Total resource blocks found: {len(all_resources)}")
-    print()
     
     results = []
     for service_key, handler in SERVICE_MAP.items():
         filtered_resources = [r for r in all_resources if service_key in r]
         if filtered_resources:
-            print(f"Processing {service_key}...")
             try:
                 if service_key == 'aws_nat_gateway':
                     result = handler(region, filtered_resources, nat_gb_estimate)
@@ -97,7 +85,7 @@ def process_terraform_directory(directory_path: str, nat_gb_estimate: int) -> No
                     result = handler(region, filtered_resources)
                 results.append(result)
             except Exception as e:
-                print(f"  -> Error processing {service_key}: {e}")
+                continue
 
     if results:
         print_cost_summary(results)
@@ -115,7 +103,6 @@ def main():
     try:
         process_terraform_directory(args.directory, args.nat_gb)
     except Exception as e:
-        print(f"\nAn unexpected error occurred: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
